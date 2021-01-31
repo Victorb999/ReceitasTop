@@ -16,7 +16,6 @@ class IngredienteController {
 
   async create(request: Request, response: Response) {
     const { descricao, unidade, quantidade, preco } = request.body;
-    console.log(request.body);
 
     var dateFormat = require("dateformat");
     let data = dateFormat(new Date(), "dd/mm/yyyy");
@@ -30,7 +29,6 @@ class IngredienteController {
       preco,
       data: data
     };
-    console.log(ingrediente_request);
 
     const insertedIds = await trx("ingrediente").insert(ingrediente_request);
 
@@ -41,6 +39,74 @@ class IngredienteController {
     return response.json({
       id: ingrediente_id
     });
+  }
+
+  async show(request: Request, response: Response) {
+    const { id } = request.params;
+
+    const ingrediente = await knex("ingrediente").where("id", id).first();
+
+    if (!ingrediente) {
+      return response
+        .status(400)
+        .json({ message: "Não encontramos esse ingrediente." });
+    }
+
+    return response.json({ ingrediente });
+  }
+
+  async update(request: Request, response: Response) {
+    const { id } = request.params;
+    const { descricao, unidade, quantidade, preco } = request.body;
+
+    var dateFormat = require("dateformat");
+    let data = dateFormat(new Date(), "dd/mm/yyyy");
+
+    try {
+      const trx = await knex.transaction();
+
+      const ingrediente_request = {
+        descricao,
+        unidade,
+        quantidade,
+        preco,
+        data: data
+      };
+
+      const update = await trx("ingrediente")
+        .where("id", id)
+        .update(ingrediente_request);
+
+      await trx.commit();
+
+      if (!update) {
+        return response
+          .status(400)
+          .json({ message: "Não encontramos esse ingrediente." });
+      }
+
+      return response.json({
+        update
+      });
+    } catch (error) {
+      return response.json({
+        error
+      });
+    }
+  }
+
+  async delete(request: Request, response: Response) {
+    const { id } = request.params;
+
+    const ingrediente = await knex("ingrediente").where("id", id).del();
+
+    if (!ingrediente) {
+      return response
+        .status(400)
+        .json({ message: "Não encontramos esse ingrediente." });
+    }
+
+    return response.json({ ingrediente });
   }
 }
 export default IngredienteController;
