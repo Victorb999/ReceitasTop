@@ -4,12 +4,12 @@ import knex from "../database/connection";
 class PointsController {
   async create(request: Request, response: Response) {
     const { Receita, Ingredientes } = request.body;
-    
+
     var dateFormat = require("dateformat");
     const data = dateFormat(new Date(), "dd/mm/yyyy");
 
     const trx = await knex.transaction();
-    let valor = 0;
+    var valor = 0;
     const receita = {
       descricao: Receita.descricao,
       valor_total: valor,
@@ -19,6 +19,8 @@ class PointsController {
     const insertedIds = await trx("receita").insert(receita);
 
     const receita_id = insertedIds[0];
+
+    await trx.commit();
 
     Ingredientes.map(async item => {
       const ingrediente = await knex("ingrediente")
@@ -31,8 +33,6 @@ class PointsController {
           .json({ message: "Não encontramos esse ingrediente." });
       }
 
-      console.log(ingrediente);
-
       const preco_calculado =
         (item.quantidade * ingrediente.preco) / ingrediente.quantidade;
 
@@ -43,19 +43,21 @@ class PointsController {
         quantidade: item.quantidade,
         preco: preco_calculado
       };
-      valor += preco_calculado;
 
-      const inserted = await trx("ingrediente_receita").insert(
-        ingrediente_receita
-      );
+      //const trx = await knex.transaction();
+
+      await knex("ingrediente_receita").insert(ingrediente_receita);
+
+      //await trx.commit();
+
+      //const trx2 = await knex.transaction();
+      await knex("receita")
+        .where("id", receita_id)
+        .update({
+          valor_total: knex.raw("?? + " + preco_calculado, ["valor_total"])
+        });
+      //await trx2.commit();
     });
-
-    await knex("receita").where("id", receita_id).update({
-      valor_total: valor,
-      thisKeyIsSkipped: undefined
-    });
-
-    await trx.commit();
 
     return response.json({
       id: receita_id
