@@ -3,15 +3,9 @@ import knex from "../database/connection";
 
 class IngredienteController {
   async index(request: Request, response: Response) {
-    const ingrediente = await knex("ingrediente").select("*");
+    const ingredientes = await knex("ingrediente").select("*");
 
-    const Ingrediente = ingrediente.map(item => {
-      return {
-        item
-      };
-    });
-
-    return response.json({ Ingrediente });
+    return response.json({ ingredientes });
   }
 
   async create(request: Request, response: Response) {
@@ -98,9 +92,12 @@ class IngredienteController {
   async delete(request: Request, response: Response) {
     const { id } = request.params;
 
+    const itens = await knex("ingrediente_receita")
+    .where("ingrediente_id", id)
+    .del();
     const ingrediente = await knex("ingrediente").where("id", id).del();
 
-    if (!ingrediente) {
+    if (!ingrediente || !itens) {
       return response
         .status(400)
         .json({ message: "Não encontramos esse ingrediente." });

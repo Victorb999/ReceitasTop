@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import knex from "../database/connection";
 
-class PointsController {
+class ReceitaController {
   async create(request: Request, response: Response) {
     const { Receita, Ingredientes } = request.body;
 
@@ -67,37 +67,106 @@ class PointsController {
   async show(request: Request, response: Response) {
     const { id } = request.params;
 
-    const point = await knex("points").where("id", id).first();
+    const receita = await knex("receita").where("id", id).first();
 
-    if (!point) {
-      return response.status(400).json({ message: "Point not found." });
+    if (!receita) {
+      return response.status(400).json({ message: "Receita não encontrada." });
     }
 
-    const items = await knex("items")
-      .join("point_items", "items.id", "=", "point_items.item_id")
-      .where("point_items.point_id", id)
-      .select("items.title");
+    const ingredientes = await knex("ingrediente")
+      .join(
+        "ingrediente_receita",
+        "ingrediente.id",
+        "=",
+        "ingrediente_receita.ingrediente_id"
+      )
+      .where("ingrediente_receita.receita_id", id)
+      .select("ingrediente.*");
 
-    return response.json({ point, items });
+    return response.json({ receita, ingredientes });
   }
 
   async index(request: Request, response: Response) {
-    const { city, uf, items } = request.query;
+    const receitas = await knex("receita").select("*");
 
-    const parsedItems = String(items)
-      .split(",")
-      .map(item => Number(item.trim()));
+    return response.json({ receitas });
+  }
 
-    const points = await knex("points")
-      .join("point_items", "points.id", "=", "point_items.point_id")
-      .whereIn("point_items.item_id", parsedItems)
-      .where("city", String(city))
-      .where("uf", String(uf))
-      .distinct()
-      .select("points.*");
+  async delete(request: Request, response: Response) {
+    const { id } = request.params;
 
-    return response.json(points);
+    const itens = await knex("ingrediente_receita")
+      .where("receita_id", id)
+      .del();
+    const receita = await knex("receita").where("id", id).del();
+
+    if (!receita || !itens) {
+      return response
+        .status(400)
+        .json({ message: "Não encontramos esse ingrediente." });
+    }
+
+    return response.json({ receita });
+  }
+
+  async removeIngredientes(request: Request, response: Response) {
+    const { id } = request.params;
+    const { Ingredientes } = request.body;
+
+    Ingredientes.map(async item => {
+      const itens = await knex("ingrediente_receita")
+        .where("receita_id", id)
+        .where("ingrediente_id", item.id)
+        .del();
+
+      if (!itens) {
+        return response
+          .status(400)
+          .json({ message: "Não encontramos esse ingrediente." });
+      }
+    });
+
+    const receita = await knex("receita").where("id", id).first();
+
+    return response.json({ receita });
+  }
+
+  async update(request: Request, response: Response) {
+    const { id } = request.params;
+    const { descricao } = request.body;
+
+    var dateFormat = require("dateformat");
+    let data = dateFormat(new Date(), "dd/mm/yyyy");
+
+    try {
+      const trx = await knex.transaction();
+
+      const ingrediente_request = {
+        descricao,
+        data: data
+      };
+
+      const update = await trx("receita")
+        .where("id", id)
+        .update(ingrediente_request);
+
+      await trx.commit();
+
+      if (!update) {
+        return response
+          .status(400)
+          .json({ message: "Não encontramos esse ingrediente." });
+      }
+
+      return response.json({
+        update
+      });
+    } catch (error) {
+      return response.json({
+        error
+      });
+    }
   }
 }
 
-export default PointsController;
+export default ReceitaController;

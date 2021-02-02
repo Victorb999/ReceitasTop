@@ -6,15 +6,21 @@ import IngredienteController from "./controllers/IngredienteController";
 const routes = express.Router();
 
 const receitaController = new ReceitaController()
-const IngredientesController = new IngredienteController();
+const ingredientesController = new IngredienteController();
 
 //index, show , create, update ,delete
-routes.get("/ingrediente", IngredientesController.index);
-routes.get("/ingrediente/:id", IngredientesController.show);
-routes.post("/ingrediente", IngredientesController.create);
-routes.put("/ingrediente/:id", IngredientesController.update);
-routes.delete("/ingrediente/:id", IngredientesController.delete);
+routes.get("/ingrediente", ingredientesController.index);
+routes.get("/ingrediente/:id", ingredientesController.show);
+routes.post("/ingrediente", ingredientesController.create);
+routes.put("/ingrediente/:id", ingredientesController.update);
+routes.delete("/ingrediente/:id", ingredientesController.delete);
 
-routes.post('/receita',receitaController.create)
+routes.post("/ingredienteReceita/:id", receitaController.removeIngredientes);
+
+routes.post('/receita',receitaController.create);
+routes.get('/receita/:id',receitaController.show);
+routes.get('/receita/',receitaController.index);
+routes.put("/receita/:id", receitaController.update);
+routes.delete('/receita/:id',receitaController.delete);
 
 export default routes;
