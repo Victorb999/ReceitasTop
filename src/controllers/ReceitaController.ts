@@ -87,7 +87,7 @@ class ReceitaController {
   }
 
   async index(request: Request, response: Response) {
-    const receitas = await knex("receita").select("*");
+    const receitas = await knex("receita").select("*").orderBy("descricao");;
 
     return response.json({ receitas });
   }

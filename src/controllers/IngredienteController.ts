@@ -3,7 +3,9 @@ import knex from "../database/connection";
 
 class IngredienteController {
   async index(request: Request, response: Response) {
-    const ingredientes = await knex("ingrediente").select("*");
+    const ingredientes = await knex("ingrediente")
+      .select("*")
+      .orderBy("descricao");
 
     return response.json({ ingredientes });
   }
@@ -93,8 +95,8 @@ class IngredienteController {
     const { id } = request.params;
 
     const itens = await knex("ingrediente_receita")
-    .where("ingrediente_id", id)
-    .del();
+      .where("ingrediente_id", id)
+      .del();
     const ingrediente = await knex("ingrediente").where("id", id).del();
 
     if (!ingrediente || !itens) {
