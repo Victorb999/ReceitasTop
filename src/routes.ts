@@ -9,6 +9,9 @@ const receitaController = new ReceitaController()
 const ingredientesController = new IngredienteController();
 
 //index, show , create, update ,delete
+routes.get('/', function(req, res) {
+  res.send('hello world');
+});
 routes.get("/ingrediente", ingredientesController.index);
 routes.get("/ingrediente/:id", ingredientesController.show);
 routes.post("/ingrediente", ingredientesController.create);
