@@ -21,8 +21,24 @@ class ReceitaController {
     const receita_id = insertedIds[0];
 
     await trx.commit();
+    
+    interface Ingrediente {
+      id: number;
+      descricao: string;
+      unidade: string;
+      quantidade: number;
+      preco: number;
+      data: Date;
+    }
+    // interface ingrediente_receita {
+    //   id?: number;
+    //   quantidade?: number;
+    //   preco?: number;
+    //   ingrediente_id:number;
+    //   receita_id: number;
+    // }
 
-    Ingredientes.map(async item => {
+    Ingredientes.map(async (item:Ingrediente) => {
       const ingrediente = await knex("ingrediente")
         .where("id", item.id)
         .first();
@@ -113,7 +129,15 @@ class ReceitaController {
     const { id } = request.params;
     const { Ingredientes } = request.body;
 
-    Ingredientes.map(async item => {
+    interface Ingrediente {
+      id: number;
+      descricao: string;
+      unidade: string;
+      quantidade: number;
+      preco: number;
+      data: Date;
+    }
+    Ingredientes.map(async (item:Ingrediente) => {
       const itens = await knex("ingrediente_receita")
         .where("receita_id", id)
         .where("ingrediente_id", item.id)
