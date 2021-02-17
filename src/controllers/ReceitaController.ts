@@ -3,20 +3,20 @@ import knex from "../database/connection";
 
 class ReceitaController {
   async create(request: Request, response: Response) {
-    const { Receita, Ingredientes } = request.body;
+    const { receita, ingredientes } = request.body;
 
     var dateFormat = require("dateformat");
     const data = dateFormat(new Date(), "dd/mm/yyyy");
 
     const trx = await knex.transaction();
     var valor = 0;
-    const receita = {
-      descricao: Receita.descricao,
+    const receitaOBJ = {
+      descricao: receita.descricao,
       valor_total: valor,
       data: data
     };
 
-    const insertedIds = await trx("receita").insert(receita);
+    const insertedIds = await trx("receita").insert(receitaOBJ);
 
     const receita_id = insertedIds[0];
 
@@ -38,7 +38,7 @@ class ReceitaController {
     //   receita_id: number;
     // }
 
-    Ingredientes.map(async (item:Ingrediente) => {
+    ingredientes.map(async (item:Ingrediente) => {
       const ingrediente = await knex("ingrediente")
         .where("id", item.id)
         .first();
