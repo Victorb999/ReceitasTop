@@ -97,7 +97,12 @@ class ReceitaController {
         "ingrediente_receita.ingrediente_id"
       )
       .where("ingrediente_receita.receita_id", id)
-      .select("ingrediente.*");
+      .select(
+        "ingrediente.id",
+        "ingrediente.descricao",
+        "ingrediente_receita.preco",
+        "ingrediente_receita.quantidade"
+        );
 
     return response.json({ receita, ingredientes });
   }
