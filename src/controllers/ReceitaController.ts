@@ -16,8 +16,7 @@ class ReceitaController {
       data: data,
     };
 
-    const insertedIds = await trx("receita").insert(receitaOBJ);
-
+    const insertedIds = await trx("receita").returning("id").insert(receitaOBJ);
     const receita_id = insertedIds[0];
 
     await trx.commit();
