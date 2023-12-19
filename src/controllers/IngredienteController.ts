@@ -14,7 +14,7 @@ class IngredienteController {
     const { descricao, unidade, quantidade, preco } = request.body;
 
     var dateFormat = require("dateformat");
-    let data = dateFormat(new Date(), "dd/mm/yyyy");
+    let data = dateFormat(new Date(), "mm/dd/yyyy");
 
     const trx = await knex.transaction();
 
@@ -23,7 +23,7 @@ class IngredienteController {
       unidade,
       quantidade,
       preco,
-      data: data
+      data: data,
     };
 
     const insertedIds = await trx("ingrediente").insert(ingrediente_request);
@@ -33,7 +33,7 @@ class IngredienteController {
     await trx.commit();
 
     return response.json({
-      id: ingrediente_id
+      id: ingrediente_id,
     });
   }
 
@@ -56,7 +56,7 @@ class IngredienteController {
     const { descricao, unidade, quantidade, preco } = request.body;
 
     var dateFormat = require("dateformat");
-    let data = dateFormat(new Date(), "dd/mm/yyyy");
+    let data = dateFormat(new Date(), "mm/dd/yyyy");
 
     try {
       const trx = await knex.transaction();
@@ -66,7 +66,7 @@ class IngredienteController {
         unidade,
         quantidade,
         preco,
-        data: data
+        data: data,
       };
 
       const update = await trx("ingrediente")
@@ -82,11 +82,11 @@ class IngredienteController {
       }
 
       return response.json({
-        update
+        update,
       });
     } catch (error) {
       return response.json({
-        error
+        error,
       });
     }
   }

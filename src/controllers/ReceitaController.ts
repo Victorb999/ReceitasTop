@@ -6,14 +6,14 @@ class ReceitaController {
     const { receita, ingredientes } = request.body;
 
     var dateFormat = require("dateformat");
-    const data = dateFormat(new Date(), "dd/mm/yyyy");
+    const data = dateFormat(new Date(), "mm/dd/yyyy");
 
     const trx = await knex.transaction();
     var valor = 0;
     const receitaOBJ = {
       descricao: receita.descricao,
       valor_total: valor,
-      data: data
+      data: data,
     };
 
     const insertedIds = await trx("receita").insert(receitaOBJ);
@@ -21,7 +21,7 @@ class ReceitaController {
     const receita_id = insertedIds[0];
 
     await trx.commit();
-    
+
     interface Ingrediente {
       id: number;
       descricao: string;
@@ -38,7 +38,7 @@ class ReceitaController {
     //   receita_id: number;
     // }
 
-    ingredientes.map(async (item:Ingrediente) => {
+    ingredientes.map(async (item: Ingrediente) => {
       const ingrediente = await knex("ingrediente")
         .where("id", item.id)
         .first();
@@ -57,7 +57,7 @@ class ReceitaController {
         receita_id: receita_id,
         data: data,
         quantidade: item.quantidade,
-        preco: preco_calculado
+        preco: preco_calculado,
       };
 
       //const trx = await knex.transaction();
@@ -70,13 +70,13 @@ class ReceitaController {
       await knex("receita")
         .where("id", receita_id)
         .update({
-          valor_total: knex.raw("?? + " + preco_calculado, ["valor_total"])
+          valor_total: knex.raw("?? + " + preco_calculado, ["valor_total"]),
         });
       //await trx2.commit();
     });
 
     return response.json({
-      id: receita_id
+      id: receita_id,
     });
   }
 
@@ -94,21 +94,21 @@ class ReceitaController {
         "ingrediente_receita",
         "ingrediente.id",
         "=",
-        "ingrediente_receita.ingrediente_id"
+        "ingrediente_receita.ingrediente_id",
       )
       .where("ingrediente_receita.receita_id", id)
       .select(
         "ingrediente.id",
         "ingrediente.descricao",
         "ingrediente_receita.preco",
-        "ingrediente_receita.quantidade"
-        );
+        "ingrediente_receita.quantidade",
+      );
 
     return response.json({ receita, ingredientes });
   }
 
   async index(request: Request, response: Response) {
-    const receitas = await knex("receita").select("*").orderBy("descricao");;
+    const receitas = await knex("receita").select("*").orderBy("descricao");
 
     return response.json({ receitas });
   }
@@ -142,7 +142,7 @@ class ReceitaController {
       preco: number;
       data: Date;
     }
-    Ingredientes.map(async (item:Ingrediente) => {
+    Ingredientes.map(async (item: Ingrediente) => {
       const itens = await knex("ingrediente_receita")
         .where("receita_id", id)
         .where("ingrediente_id", item.id)
@@ -172,7 +172,7 @@ class ReceitaController {
 
       const ingrediente_request = {
         descricao,
-        data: data
+        data: data,
       };
 
       const update = await trx("receita")
@@ -188,11 +188,11 @@ class ReceitaController {
       }
 
       return response.json({
-        update
+        update,
       });
     } catch (error) {
       return response.json({
-        error
+        error,
       });
     }
   }
